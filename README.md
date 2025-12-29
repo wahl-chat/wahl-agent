@@ -22,3 +22,12 @@ To run the application locally using debug flag (hot reloading) execute the foll
 poetry run flask --app src/controller.py run --debug
 ```
 
+## License
+This project is **source-available** under the **PolyForm Noncommercial 1.0.0** license.
+- Free for **non-commercial** use (see LICENSE for permitted purposes)
+- Share the license text and any `Required Notice:` lines when distributing
+- Please contact us at info@wahl.chat to:
+
+  - Inform us about your use case
+  - Get access to assets required for a reference to wahl.chat on your project page
+- Do not use the wahl.chat name or logo in your project without our permission
