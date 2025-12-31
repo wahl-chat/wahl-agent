@@ -1,0 +1,16 @@
+.ruff_cache
+.venv
+.env
+*.pyc
+__pycache__
+wahl-chat-dev-firebase-adminsdk.json
+.DS_Store
+.mypy_cache
+**/.DS_Store
+.pdf
+
+# Local random stuff
+scratch
+firebase_rename_collection.py
+.idea
+**/.pdf

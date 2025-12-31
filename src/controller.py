@@ -1,0 +1,112 @@
+from flask import Flask, Response, jsonify, request
+import json
+from dotenv import load_dotenv
+
+from src.agent_orchestrator import chat
+from src.services.firestore_service import (
+    save_conversation_metadata,
+    get_party_positions_by_topic_id,
+    get_conversation,
+)
+
+load_dotenv()
+app = Flask(__name__)
+
+
+@app.route("/chat-start", methods=["POST"])
+def start_chat():
+    payload = request.get_json(force=True) or {}
+    required_fields = ["topic", "age", "region", "living_situation", "occupation"]
+    missing_fields = [field for field in required_fields if payload.get(field) is None]
+
+    if missing_fields:
+        return (
+            jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}),
+            400,
+        )
+
+    topic = payload["topic"]
+    user_profile = {
+        "age": payload["age"],
+        "region": payload["region"],
+        "living_situation": payload["living_situation"],
+        "occupation": payload["occupation"],
+    }
+
+    try:
+        conversation_id = save_conversation_metadata(
+            topic=topic,
+            user_profile=user_profile,
+        )
+    except RuntimeError as exc:
+        app.logger.exception("Failed to store chat-start payload: %s", exc)
+        return jsonify({"error": "Failed to store conversation metadata"}), 500
+
+    return jsonify({"conversation_id": conversation_id}), 201
+
+
+@app.route("/chat-stream", methods=["POST"])
+def chat_stream():
+    payload = request.get_json(force=True) or {}
+    required_fields = ["user_message", "conversation_id"]
+    missing_fields = [field for field in required_fields if payload.get(field) is None]
+    if missing_fields:
+        return (
+            jsonify({"error": f"Missing required fields: {', '.join(missing_fields)}"}),
+            400,
+        )
+    user_message = payload.get("user_message")
+    conversation_id = payload.get("conversation_id")
+
+    return Response(
+        (
+            json.dumps(event).encode("utf-8") + b"\n"
+            for event in chat(conversation_id, user_message)
+        ),
+        mimetype="text/event-stream",
+    )
+
+
+@app.route("/conversation-stage/<conversation_id>", methods=["GET"])
+def get_conversation_stage(conversation_id: str):
+    conversation = get_conversation(conversation_id)
+
+    if conversation is None:
+        return jsonify({"error": "Conversation not found"}), 404
+
+    return jsonify({"stage": conversation.get("stage")}), 200
+
+
+@app.route("/conversation-messages/<conversation_id>", methods=["GET"])
+def get_conversation_messages(conversation_id: str):
+    conversation = get_conversation(conversation_id)
+
+    if conversation is None:
+        return jsonify({"error": "Conversation not found"}), 404
+
+    # Merge messages from all stages in chronological order
+    all_messages = []
+    stage_keys = [
+        "active_listening_messages",
+        "party_positioning_messages",
+        "perspective_taking_messages",
+        "deliberation_messages",
+    ]
+
+    for key in stage_keys:
+        for msg in conversation.get(key, []):
+            all_messages.append(
+                {
+                    "role": msg.get("type", "human"),
+                    "content": msg.get("content", ""),
+                }
+            )
+
+    return jsonify({"messages": all_messages}), 200
+
+
+@app.route("/debug", methods=["POST"])
+def chat_debug():
+    party_positions = get_party_positions_by_topic_id("migration_security_state")
+    print(party_positions)
+    return "Ok!"
