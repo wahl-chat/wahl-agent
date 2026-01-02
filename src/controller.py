@@ -105,8 +105,11 @@ def get_conversation_messages(conversation_id: str):
     return jsonify({"messages": all_messages}), 200
 
 
-@app.route("/debug", methods=["POST"])
-def chat_debug():
-    party_positions = get_party_positions_by_topic_id("migration_security_state")
-    print(party_positions)
-    return "Ok!"
+@app.route("/conversation-topic/<conversation_id>", methods=["GET"])
+def get_conversation_topic(conversation_id: str):
+    conversation = get_conversation(conversation_id)
+    
+    if conversation is None:
+        return jsonify({"error": "Conversation not found"}), 404
+    return jsonify({"topic": conversation.get("topic")}), 200
+
