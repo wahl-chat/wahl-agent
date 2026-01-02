@@ -22,6 +22,12 @@ To run the application locally using debug flag (hot reloading) execute the foll
 poetry run flask --app src/controller.py run --debug
 ```
 
+## Development
+To run the ruff formatter execute:
+```bash
+poetry run ruff format .
+```
+
 ## License
 This project is **source-available** under the **PolyForm Noncommercial 1.0.0** license.
 - Free for **non-commercial** use (see LICENSE for permitted purposes)
