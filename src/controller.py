@@ -102,6 +102,11 @@ def get_conversation_messages(conversation_id: str):
                 }
             )
 
+    # Add party matching result
+    party_matching_result = conversation.get("party_matching_result", None)
+    if party_matching_result:
+        all_messages.append({"role": "assistant", "content": party_matching_result})
+
     return jsonify({"messages": all_messages}), 200
 
 
