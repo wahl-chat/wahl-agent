@@ -14,7 +14,7 @@ from src.prompts import (
     get_distillation_prompt,
     get_party_matching_prompt,
 )
-from src.utils.events import stream_single_message
+from src.utils.events import stream_single_message, progress_event
 from src.services.firestore_service import update_conversation
 from src.services.wahl_chat_service import (
     WahlChatResponse,
@@ -32,6 +32,7 @@ llm = ChatOpenAI(
 
 
 def start_party_matching(state: ConversationState) -> Iterator[dict]:
+    yield progress_event("Deine Diskussion wird zusammengefasst...")
     deliberation_summary = get_required_summaries(state)
 
     party_question_distillation_prompt = ChatPromptTemplate.from_template(
@@ -42,10 +43,12 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
         party_question_distillation_prompt | llm | StrOutputParser()
     )
 
+    yield progress_event("Kernfrage wird formuliert...")
     question = question_distillation_chain.invoke(
         {"topic": state.topic, "deliberation_summary": deliberation_summary}
     )
 
+    yield progress_event("Parteipositionen werden abgefragt...")
     party_responses: WahlChatResponse = ask_bundestag_parties(question)
     party_matching_prompt = ChatPromptTemplate.from_template(
         get_party_matching_prompt(party_responses)
@@ -53,6 +56,7 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
 
     party_matching_chain = party_matching_prompt | llm | StrOutputParser()
 
+    yield progress_event("Übereinstimmung wird analysiert...")
     party_matching_result = party_matching_chain.invoke(
         {
             "topic": state.topic,

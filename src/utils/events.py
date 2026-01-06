@@ -43,6 +43,11 @@ def stream_single_message(text: str) -> Iterator[dict]:
     yield from stream_text_as_events([text])
 
 
+def progress_event(message: str) -> dict:
+    """Create a progress update event to inform the user about ongoing operations."""
+    return {"type": EventType.PROGRESS_UPDATE.value, "content": message}
+
+
 def stream_response_and_update_state(
     state: ConversationState,
     agent: Runnable,
