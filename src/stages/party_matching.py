@@ -47,6 +47,7 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
     question = question_distillation_chain.invoke(
         {"topic": state.topic, "deliberation_summary": deliberation_summary}
     )
+    print("Question asked to parties: ", question)
 
     yield progress_event("Parteipositionen werden abgefragt")
     party_responses: WahlChatResponse = ask_bundestag_parties(question)
@@ -74,6 +75,8 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
     party_matching_prompt = ChatPromptTemplate.from_template(
         get_party_matching_prompt(party_responses)
     )
+
+    print("Party matching prompt: ", party_matching_prompt)
 
     party_matching_chain = party_matching_prompt | llm | StrOutputParser()
 
