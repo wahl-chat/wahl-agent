@@ -185,7 +185,7 @@ def get_party_matching_prompt(
         "IMPORTANT: When you reference specific information from a party's response, always include the source using the source number in square brackets ADDITIONALLY to the Party ID, e.g. [spd][1], [cdu][2], etc. "
         "This allows the user to verify the information.\n\n"
         "Return an explanation to the user in German explaining which party (or parties) matches the best to the user's perspective. Also explain why other parties don't match."
-        "Include source citations [Party ID][N] when referencing specific policy positions or facts from the party responses. If they are present in the party response"
+        "Include source citations [Party ID][N] when referencing specific policy positions or facts from the party responses if they are present in the party response. The references MUST ALWAYS include both components [Party ID][N]. Otherwise DO NOT include the citation!"
         "This is only shown to the user as the last message in a conversation, but the user can't reply. So don't formulate or suggest any questions to the user."
         "Use Markdown formatting (headings, bold, ...) to differentiate between the party positions."
     )
