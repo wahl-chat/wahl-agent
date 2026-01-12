@@ -167,19 +167,27 @@ def get_distillation_prompt() -> str:
     )
 
 
-def get_party_matching_prompt(WahlChatResponse: WahlChatResponse) -> str:
+def get_party_matching_prompt(
+    wahl_chat_response: WahlChatResponse) -> str:
     party_responses_str = ""
-    for party_response in WahlChatResponse.party_responses:
-        party_responses_str += f"Party: {party_id_to_name(party_response.party_id)}\n"
-        party_responses_str += f"Response: {party_response.response}\n\n"
+    for party_response in wahl_chat_response.party_responses:
+        party_name = party_id_to_name(party_response.party_id)
+        party_responses_str += f"Party: {party_name}\nParty ID: {party_response.party_id}\n"
+        party_responses_str += f"Response: {party_response.response}\n"
+        party_responses_str += "\n"
 
     return (
         "Your task is to find the political party that matches the best based on the user's perspective on the topic of {topic}\n"
         "The user's perspective is:\n{deliberation_summary}\n\n"
-        "The political parties where asked the following question:\n{question}\n\n"
+        "The political parties were asked the following question:\n{question}\n\n"
         "These are the responses from the political parties:\n"
         f"{party_responses_str}\n\n"
-        "Return an explanation to the user in german explaining why that party matches the best to the user's perspective."
+        "IMPORTANT: When you reference specific information from a party's response, always include the source using the source number in square brackets ADDITIONALLY to the Party ID, e.g. [spd][1], [cdu][2], etc. "
+        "This allows the user to verify the information.\n\n"
+        "Return an explanation to the user in German explaining which party (or parties) matches the best to the user's perspective. Also explain why other parties don't match."
+        "Include source citations [Party ID][N] when referencing specific policy positions or facts from the party responses. If they are present in the party response"
+        "This is only shown to the user as the last message in a conversation, but the user can't reply. So don't formulate or suggest any questions to the user."
+        "Use Markdown formatting (headings, bold, ...) to differentiate between the party positions."
     )
 
 

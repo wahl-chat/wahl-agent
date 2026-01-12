@@ -48,6 +48,11 @@ def progress_event(message: str) -> dict:
     return {"type": EventType.PROGRESS_UPDATE.value, "content": message}
 
 
+def sources_ready_event(sources: list[dict]) -> dict:
+    """Create a sources_ready event with per-party grouped sources."""
+    return {"type": EventType.SOURCES_READY.value, "sources": sources}
+
+
 def stream_response_and_update_state(
     state: ConversationState,
     agent: Runnable,

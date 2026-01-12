@@ -22,6 +22,7 @@ class Source:
     page: int
     url: str | None = None
     document_publish_date: str | None = None
+    source_document: str | None = None
 
 
 @dataclass
@@ -65,6 +66,7 @@ async def _ask_parties_async(question: str) -> WahlChatResponse:
                 page=s.get("page", 0),
                 url=s.get("url"),
                 document_publish_date=s.get("document_publish_date"),
+                source_document=s.get("source_document"),
             )
             for s in data.get("sources", [])
         ]

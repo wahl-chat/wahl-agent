@@ -14,7 +14,7 @@ from src.prompts import (
     get_distillation_prompt,
     get_party_matching_prompt,
 )
-from src.utils.events import stream_single_message, progress_event
+from src.utils.events import stream_single_message, progress_event, sources_ready_event
 from src.services.firestore_service import update_conversation
 from src.services.wahl_chat_service import (
     WahlChatResponse,
@@ -32,7 +32,7 @@ llm = ChatOpenAI(
 
 
 def start_party_matching(state: ConversationState) -> Iterator[dict]:
-    yield progress_event("Deine Diskussion wird zusammengefasst...")
+    yield progress_event("Deine Diskussion wird zusammengefasst")
     deliberation_summary = get_required_summaries(state)
 
     party_question_distillation_prompt = ChatPromptTemplate.from_template(
@@ -43,20 +43,41 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
         party_question_distillation_prompt | llm | StrOutputParser()
     )
 
-    yield progress_event("Kernfrage wird formuliert...")
+    yield progress_event("Kernfrage wird formuliert")
     question = question_distillation_chain.invoke(
         {"topic": state.topic, "deliberation_summary": deliberation_summary}
     )
 
-    yield progress_event("Parteipositionen werden abgefragt...")
+    yield progress_event("Parteipositionen werden abgefragt")
     party_responses: WahlChatResponse = ask_bundestag_parties(question)
+
+
+    # Build sources payload for frontend (per-party grouped)
+    sources_payload = [
+        {
+            "party_id": party_response.party_id,
+            "sources": [
+                {
+                    "source": s.name,
+                    "page": s.page,
+                    "url": s.url or "",
+                    "document_publish_date": s.document_publish_date or "",
+                    "source_document": s.source_document or "",
+                }
+                for s in party_response.sources
+            ],
+        }
+        for party_response in party_responses.party_responses
+        if party_response.sources
+    ]
+
     party_matching_prompt = ChatPromptTemplate.from_template(
         get_party_matching_prompt(party_responses)
     )
 
     party_matching_chain = party_matching_prompt | llm | StrOutputParser()
 
-    yield progress_event("Übereinstimmung wird analysiert...")
+    yield progress_event("Übereinstimmung wird analysiert")
     party_matching_result = party_matching_chain.invoke(
         {
             "topic": state.topic,
@@ -65,12 +86,19 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
         }
     )
 
+    # Emit sources before the message content
+    if sources_payload:
+        yield sources_ready_event(sources_payload)
+
     yield from stream_single_message(party_matching_result)
 
     update_conversation(
         conversation_id=state.id,
         stage=ConversationStage.END.value,
-        extra={"party_matching_result": party_matching_result},
+        extra={
+            "party_matching_result": party_matching_result,
+            "party_matching_sources": sources_payload,
+        },
     )
 
 
