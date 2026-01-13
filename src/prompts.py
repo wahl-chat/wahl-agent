@@ -1,5 +1,6 @@
 from typing import Any
 from langchain_core.messages import AIMessage, SystemMessage
+import re
 
 from src.services.wahl_chat_service import WahlChatResponse
 
@@ -173,7 +174,7 @@ def get_party_matching_prompt(
     for party_response in wahl_chat_response.party_responses:
         party_name = party_id_to_name(party_response.party_id)
         party_responses_str += f"Party: {party_name}\nParty ID: {party_response.party_id}\n"
-        party_responses_str += f"Response: {party_response.response}\n"
+        party_responses_str += f"Response: {add_party_ids_to_references(party_response.response, party_response.party_id)}\n"
         party_responses_str += "\n"
 
     return (
@@ -182,13 +183,17 @@ def get_party_matching_prompt(
         "The political parties were asked the following question:\n{question}\n\n"
         "These are the responses from the political parties:\n"
         f"{party_responses_str}\n\n"
-        "IMPORTANT: When you reference specific information from a party's response, always include the source using the source number in square brackets ADDITIONALLY to the Party ID, e.g. [spd][1], [cdu][2], etc. "
+        "IMPORTANT: When you reference specific information from a party's response, ALWAYS include the source used in the party response with the party ID and the number in square brackets e.g. [spd][1], [cdu][2], etc. "
         "This allows the user to verify the information.\n\n"
         "Return an explanation to the user in German explaining which party (or parties) matches the best to the user's perspective. Also explain why other parties don't match."
         "Include source citations [Party ID][N] when referencing specific policy positions or facts from the party responses if they are present in the party response. The references MUST ALWAYS include both components [Party ID][N]. Otherwise DO NOT include the citation!"
         "This is only shown to the user as the last message in a conversation, but the user can't reply. So don't formulate or suggest any questions to the user."
         "Use Markdown formatting (headings, bold, ...) to differentiate between the party positions."
     )
+
+
+def add_party_ids_to_references(party_response: str, party_id: str) -> str:
+    return re.sub(r"\[(\d+)\]", rf"[{party_id}][\1]", party_response)
 
 
 def party_id_to_name(party_id: str) -> str:
