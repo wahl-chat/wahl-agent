@@ -33,10 +33,20 @@ def start_chat():
         "occupation": payload["occupation"],
     }
 
+    # Handle optional Prolific study metadata
+    extra = None
+    prolific_metadata = payload.get("prolific_metadata")
+    if prolific_metadata:
+        extra = {
+            "prolific_metadata": prolific_metadata,
+            "is_prolific_study": True,
+        }
+
     try:
         conversation_id = save_conversation_metadata(
             topic=topic,
             user_profile=user_profile,
+            extra=extra,
         )
     except RuntimeError as exc:
         app.logger.exception("Failed to store chat-start payload: %s", exc)
