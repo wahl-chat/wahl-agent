@@ -94,6 +94,7 @@ def save_conversation_metadata(
         "stage": stage,
         "created_at": now,
         "updated_at": now,
+        "started_at": now,
     }
     if extra:
         payload.update(extra)

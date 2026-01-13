@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 from langchain_core.prompts import ChatPromptTemplate
 from typing import Iterator
 from dotenv import load_dotenv
@@ -52,7 +53,6 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
     yield progress_event("Parteipositionen werden abgefragt")
     party_responses: WahlChatResponse = ask_bundestag_parties(question)
 
-
     # Build sources payload for frontend (per-party grouped)
     sources_payload = [
         {
@@ -101,6 +101,7 @@ def start_party_matching(state: ConversationState) -> Iterator[dict]:
         extra={
             "party_matching_result": party_matching_result,
             "party_matching_sources": sources_payload,
+            "ended_at": datetime.now(timezone.utc),
         },
     )
 
