@@ -173,7 +173,7 @@ def get_party_matching_prompt(
     party_responses_str = ""
     for party_response in wahl_chat_response.party_responses:
         party_name = party_id_to_name(party_response.party_id)
-        party_responses_str += f"Party: {party_name}\nParty ID: {party_response.party_id}\n"
+        party_responses_str += f"Party: {party_name}\n"
         party_responses_str += f"Response: {add_party_ids_to_references(party_response.response, party_response.party_id)}\n"
         party_responses_str += "\n"
 
@@ -181,19 +181,20 @@ def get_party_matching_prompt(
         "Your task is to find the political party that matches the best based on the user's perspective on the topic of {topic}\n"
         "The user's perspective is:\n{deliberation_summary}\n\n"
         "The political parties were asked the following question:\n{question}\n\n"
+        "IMPORTANT: When you reference specific information from a party's response, ALWAYS include the source used in the party response with the party ID and the number in square brackets e.g. [spd][0], [cdu][2], [linke][1, 3], etc. "
+        "This allows the user to verify the information.\n\n"
         "These are the responses from the political parties:\n"
         f"{party_responses_str}\n\n"
-        "IMPORTANT: When you reference specific information from a party's response, ALWAYS include the source used in the party response with the party ID and the number in square brackets e.g. [spd][1], [cdu][2], etc. "
-        "This allows the user to verify the information.\n\n"
-        "Return an explanation to the user in German explaining which party (or parties) matches the best to the user's perspective. Also explain why other parties don't match."
-        "Include source citations [Party ID][N] when referencing specific policy positions or facts from the party responses if they are present in the party response. The references MUST ALWAYS include both components [Party ID][N]. Otherwise DO NOT include the citation!"
-        "This is only shown to the user as the last message in a conversation, but the user can't reply. So don't formulate or suggest any questions to the user."
-        "Use Markdown formatting (headings, bold, ...) to differentiate between the party positions."
+        "Return an explanation to the user in German explaining which party (or parties) matches the best to the user's perspective. Also explain why other parties don't match.\n"
+        "Include the complete source citations [Party ID][N] that are used in the party responses.\n"
+        "This is only shown to the user as the last message in a conversation, but the user can't reply. So don't formulate or suggest any questions to the user.\n"
+        "DO NOT include the citations when there is only the party ID without the source number, e.g. '[spd]' NOR when there is only the number, e.g. [2]. Both components must be present in the citation, e.g. [spd][2]\n"
+        "Use Markdown formatting (headings, bold, ...) to differentiate between the positions of the different parties."
     )
 
 
 def add_party_ids_to_references(party_response: str, party_id: str) -> str:
-    return re.sub(r"\[(\d+)\]", rf"[{party_id}][\1]", party_response)
+    return re.sub(r"\[(\d+(?:,\s*\d+)*)\]", rf"[{party_id}][\1]", party_response)
 
 
 def party_id_to_name(party_id: str) -> str:
