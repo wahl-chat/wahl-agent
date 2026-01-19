@@ -72,7 +72,6 @@ def get_firestore_client():
 def save_conversation_metadata(
     *,
     topic: str,
-    user_profile: Dict[str, Any],
     conversation_id: Optional[str] = None,
     stage: str = "start",
     extra: Optional[Dict[str, Any]] = None,
@@ -90,7 +89,6 @@ def save_conversation_metadata(
     payload: Dict[str, Any] = {
         "conversation_id": doc_ref.id,
         "topic": topic,
-        "user_profile": user_profile,
         "stage": stage,
         "created_at": now,
         "updated_at": now,

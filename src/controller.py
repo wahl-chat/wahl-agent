@@ -16,7 +16,7 @@ app = Flask(__name__)
 @app.route("/chat-start", methods=["POST"])
 def start_chat():
     payload = request.get_json(force=True) or {}
-    required_fields = ["topic", "age", "region", "living_situation", "occupation"]
+    required_fields = ["topic"]
     missing_fields = [field for field in required_fields if payload.get(field) is None]
 
     if missing_fields:
@@ -26,12 +26,6 @@ def start_chat():
         )
 
     topic = payload["topic"]
-    user_profile = {
-        "age": payload["age"],
-        "region": payload["region"],
-        "living_situation": payload["living_situation"],
-        "occupation": payload["occupation"],
-    }
 
     # Handle optional Prolific study metadata
     extra = None
@@ -45,7 +39,6 @@ def start_chat():
     try:
         conversation_id = save_conversation_metadata(
             topic=topic,
-            user_profile=user_profile,
             extra=extra,
         )
     except RuntimeError as exc:
