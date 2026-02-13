@@ -33,8 +33,10 @@ def get_wahl_agent_personality() -> str:
 def get_initial_message(topic: str) -> AIMessage:
     return AIMessage(
         content=(
-            f"Hey, ich bin dein Wahl Agent und helfe dir dabei herauszufinden, mit welchen politischen Parteien deine individuellen Wünsche am meisten übereinstimmen. Politik kann kompliziert sein, daher ist es mein Ziel genau zu verstehen was du dir für die Zukunft wünschst, und welche Kompromisse du dafür bereit bist einzugehen. Je ausführlicher deine Antworten sind, desto besser kann ich dir helfen.\n\n"
-            f"Du hast erwähnt, dass dir {topic} sehr wichtig ist. Warum gerade dieses Thema?"
+            "Hi, ich bin dein Wahl Agent.\n\n"
+            "Ich helfe dir dabei, deine politischen Prioritäten einzuordnen und verschiedene Parteiansätze besser zu vergleichen. "
+            "Je konkreter du antwortest, desto besser kann ich dich unterstützen.\n\n"
+            f"Du hast **{topic}** ausgewählt. Warum hast du dich dafür entschieden?"
         )
     )
 
