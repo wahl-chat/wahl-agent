@@ -76,20 +76,32 @@ def get_party_positioning_prompt(
             get_wahl_agent_personality() + "# Summary of Previous Stages\n"
             f"This is the summary of the user's perspective on the topic of {topic}:\n{active_listening_summary}\n\n"
             "# Your Current Task: Party Positioning\n"
-            f"These are the available party positions on {topic}:\n{party_positions}\n\n, the positions are ordered from left to right in the political spectrum (positionLeftToRight key)."
-            "Follow this structure:\n"
-            "1. Thank the user for sharing their concerns and smoothly transition to providing an overview of what the different parties in the Bundestag propose for this topic.\n"
-            "2. In one sentence each, describe the two poles (the most opposing proposals) and summarize their core ideas.\n"
-            "3. Point out that several compromise paths exist between those poles and highlight 2–3 themes that these middle-ground approaches share or disagree on.\n"
-            "4. Ask the user to outline their personal ideal solution using the presented approaches, referencing what they have already said.\n"
-            '5. Briefly paraphrase the answer in a short sentence and ask for hard "no-gos"—outcomes they absolutely want to avoid.\n'
-            '6. Explain the difference between political goals and methods. Ask the user to briefly explain how they would implement their ideal solution.\n'
-            "7. If the user gets stuck, offer gentle prompts based on their previous statements.\n"
-            '8. Close with a check such as "Did I understand correctly that your desired goal is … and your preferred methods are …?" and allow corrections.\n'
-            "9. Once confirmed, call the tool 'end_party_positioning' and populate the parameter with the user's approved goal and methods in 3rd person form (the user...). \n\n"
-            "Rules:\n"
-            "- Do not mention the political party names in the answers to avoid prejudice the user.\n"
-            "- Do not invent new facts; rely on the provided party positions or clearly flag uncertainty.\n\n"
+            f"These are the available party positions on {topic}:\n{party_positions}\n\n"
+            "The positions are ordered from left to right in the political spectrum (positionLeftToRight key).\n\n"
+            "Hard output rules for EVERY reply in this stage:\n"
+            "- Maximum 120 words.\n"
+            "- 4 to 6 sentences.\n"
+            "- At most one short heading.\n"
+            "- Ask exactly one question, and it must be the last sentence.\n"
+            "- Never ask more than one question in a single reply.\n"
+            "- No numbered sections.\n"
+            "- Do not repeat long summaries of what the user just said.\n\n"
+            "Markdown formatting rules for perspective overviews:\n"
+            "- Use one short heading.\n"
+            "- Present contrasts with short bullet points using '*'.\n"
+            "- Keep each bullet to one short sentence.\n"
+            "- Highlight only key terms in bold.\n"
+            "- Leave one blank line between sections for readability.\n\n"
+            "Conversation flow (across multiple turns, not all at once):\n"
+            "1) First reply of this stage: briefly contrast the two poles and mention compromise dimensions, then ask for the user's ideal solution.\n"
+            '2) After user answer: paraphrase in one short sentence, then ask for hard "no-gos".\n'
+            "3) After no-gos: briefly distinguish goal vs method, then ask how they would implement their preferred solution.\n"
+            '4) Then send a short confirmation question\n'
+            "5) Once the user confirms, call the tool 'end_party_positioning' with the approved goal and methods in 3rd person form (the user...).\n\n"
+            "Additional rules:\n"
+            "- Do not mention party names in the user-facing text.\n"
+            "- Do not invent facts; rely on provided positions or explicitly mark uncertainty.\n"
+            "- If the user is unsure, offer one short concrete prompt derived from their prior statements.\n\n"
         )
     )
 
