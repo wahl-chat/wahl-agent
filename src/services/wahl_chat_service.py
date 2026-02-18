@@ -12,6 +12,7 @@ BACKEND_URL = os.getenv(
     "WAHL_CHAT_BACKEND_URL",
     "https://wahl-chat-backend-dev-670868139461.europe-west1.run.app",
 )
+CONTEXT_ID = os.getenv("WAHL_CHAT_CONTEXT_ID", "bundestagswahl-2025")
 PARTY_IDS = ["spd", "cdu", "gruene", "afd", "linke"]
 TIMEOUT_SECONDS = 60
 
@@ -51,6 +52,7 @@ async def _ask_parties_async(question: str) -> WahlChatResponse:
             "chat_answer_request",
             {
                 "session_id": session_id,
+                "context_id": CONTEXT_ID,
                 "user_message": question,
                 "party_ids": PARTY_IDS,
                 "user_is_logged_in": False,
@@ -89,6 +91,7 @@ async def _ask_parties_async(question: str) -> WahlChatResponse:
         "chat_session_init",
         {
             "session_id": session_id,
+            "context_id": CONTEXT_ID,
             "party_ids": PARTY_IDS,
             "chat_history": [],
             "current_title": "",
