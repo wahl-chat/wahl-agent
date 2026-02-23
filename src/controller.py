@@ -1,11 +1,11 @@
-from flask import Flask, Response, jsonify, request
 import json
+
 from dotenv import load_dotenv
+from flask import Flask, Response, jsonify, request
 
 from src.agent_orchestrator import chat
 from src.services.firestore_service import (
     save_conversation_metadata,
-    get_party_positions_by_topic_id,
     get_conversation,
 )
 
@@ -109,11 +109,13 @@ def get_conversation_messages(conversation_id: str):
     party_matching_result = conversation.get("party_matching_result", None)
     if party_matching_result:
         party_matching_sources = conversation.get("party_matching_sources", [])
-        all_messages.append({
-            "role": "assistant",
-            "content": party_matching_result,
-            "sources": party_matching_sources,
-        })
+        all_messages.append(
+            {
+                "role": "assistant",
+                "content": party_matching_result,
+                "sources": party_matching_sources,
+            }
+        )
 
     return jsonify({"messages": all_messages}), 200
 
@@ -121,8 +123,7 @@ def get_conversation_messages(conversation_id: str):
 @app.route("/conversation-topic/<conversation_id>", methods=["GET"])
 def get_conversation_topic(conversation_id: str):
     conversation = get_conversation(conversation_id)
-    
+
     if conversation is None:
         return jsonify({"error": "Conversation not found"}), 404
     return jsonify({"topic": conversation.get("topic")}), 200
-
