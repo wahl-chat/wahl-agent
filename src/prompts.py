@@ -107,7 +107,10 @@ def get_party_positioning_prompt(
 
 
 def get_perspective_taking_prompt(
-    topic: str, active_listening_summary: str, party_positioning_summary: str, user_profile = None
+    topic: str,
+    active_listening_summary: str,
+    party_positioning_summary: str,
+    user_profile=None,
 ) -> str:
     user_profile_str = ""
     if user_profile is not None:
@@ -180,8 +183,7 @@ def get_distillation_prompt() -> str:
     )
 
 
-def get_party_matching_prompt(
-    wahl_chat_response: WahlChatResponse) -> str:
+def get_party_matching_prompt(wahl_chat_response: WahlChatResponse) -> str:
     party_responses_str = ""
     for party_response in wahl_chat_response.party_responses:
         party_name = party_id_to_name(party_response.party_id)
