@@ -38,6 +38,11 @@ def get_initial_message(topic: str) -> AIMessage:
         content=(
             "Hi, ich bin dein Wahl Agent.\n\n"
             "Ich helfe dir dabei, deine politischen Prioritäten einzuordnen und verschiedene Parteiansätze besser zu vergleichen. "
+            "Das erwartet dich:\n\n"
+            "1. Deine Meinung zum Thema erkunden\n"
+            "2. Unterschiedliche Positionen zum Thema betrachten\n"
+            "3. Verschiedene Perspektiven beleuchten\n"
+            "4. Schauen, welche Parteien zu deiner Sicht passen\n\n"
             "Je konkreter du antwortest, desto besser kann ich dich unterstützen.\n\n"
             f"Du hast **{topic}** ausgewählt. Warum hast du dich dafür entschieden?"
         )
